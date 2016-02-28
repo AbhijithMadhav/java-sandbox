@@ -9,4 +9,5 @@ public interface Interface {
 	 */
 	@Deprecated
 	void foo();
+
 }
