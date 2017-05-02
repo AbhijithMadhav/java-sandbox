@@ -35,7 +35,7 @@ class GenericsClass<T> {
 	
 	// Not possible due to generics
 	// The JVM contains just one copy of the generics class for all instances
-	//static T fieldName;
+	 T fieldName;
 	
 	void foo(T item) {
 		// not possible due to type erasure
