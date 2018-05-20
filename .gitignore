@@ -13,3 +13,18 @@ hs_err_pid*
 
 # java docs
 doc/
+
+
+#eclipse
+.classpath
+.project
+.settings
+
+.gradle
+bin/
+build/
+
+*.iml
+*.ipr
+*.iws
+.idea
