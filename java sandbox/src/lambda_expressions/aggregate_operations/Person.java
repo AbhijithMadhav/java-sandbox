@@ -37,16 +37,20 @@ import java.util.ArrayList;
  
 import java.util.List;
 
+import static java.time.chrono.IsoChronology.INSTANCE;
+import static lambda_expressions.aggregate_operations.Person.Sex.FEMALE;
+import static lambda_expressions.aggregate_operations.Person.Sex.MALE;
+
 public class Person {
   
     public enum Sex {
         MALE, FEMALE
     }
   
-    String name; 
-    LocalDate birthday;
-    Sex gender;
-    String emailAddress;
+    private String name;
+    private LocalDate birthday;
+    private Sex gender;
+    private String emailAddress;
   
     Person(String nameArg, LocalDate birthdayArg,
         Sex genderArg, String emailArg) {
@@ -58,7 +62,7 @@ public class Person {
 
     public int getAge() {
         return birthday
-            .until(IsoChronology.INSTANCE.dateNow())
+            .until(INSTANCE.dateNow())
             .getYears();
     }
 
@@ -92,24 +96,24 @@ public class Person {
         roster.add(
             new Person(
             "Fred",
-            IsoChronology.INSTANCE.date(1980, 6, 20),
-            Person.Sex.MALE,
+            INSTANCE.date(1980, 6, 20),
+            MALE,
             "fred@example.com"));
         roster.add(
             new Person(
             "Jane",
-            IsoChronology.INSTANCE.date(1990, 7, 15),
-            Person.Sex.FEMALE, "jane@example.com"));
+            INSTANCE.date(1990, 7, 15),
+            FEMALE, "jane@example.com"));
         roster.add(
             new Person(
             "George",
-            IsoChronology.INSTANCE.date(1991, 8, 13),
-            Person.Sex.MALE, "george@example.com"));
+            INSTANCE.date(1991, 8, 13),
+            MALE, "george@example.com"));
         roster.add(
             new Person(
             "Bob",
-            IsoChronology.INSTANCE.date(2000, 9, 12),
-            Person.Sex.MALE, "bob@example.com"));
+            INSTANCE.date(2000, 9, 12),
+            MALE, "bob@example.com"));
         
         return roster;
     }
