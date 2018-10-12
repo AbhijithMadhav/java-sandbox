@@ -1,82 +1,69 @@
 package concurrent.barrier;
 
-import java.util.concurrent.BrokenBarrierException;
-import java.util.concurrent.CountDownLatch;
+
+import java.util.Random;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Phaser;
-import java.util.stream.IntStream;
+
 
 public class PhaserExample {
 
+    public static void main(String[] args) {
+        ExecutorService executorService = Executors.newCachedThreadPool();
 
-    public static final int SIZE = 100000000;
-    private static final int TIME_STEPS = 10;
-    private static final int NO_THREADS = Runtime.getRuntime().availableProcessors();
-    private static final int CHUNK_SIZE = SIZE/NO_THREADS;
-
-
-
-    public static void main(String s[]) throws BrokenBarrierException, InterruptedException {
-        int[] read = new int[SIZE];
-        int[] write = new int[SIZE];
-        Phaser[] phasers = new Phaser[SIZE];
-        int[] tmp;
-        for (int i1 = 0; i1 < SIZE; i1++) {
-            read[i1] = i1;
-        }
-
-        ExecutorService executor = Executors.newCachedThreadPool();
-        long start = System.currentTimeMillis();
-
-        /*IntStream.range(0, SIZE).parallel().forEach( i -> {
-            phasers[i].register();
-            for (int t = 1 ; t <= TIME_STEPS; t++) {
-                int left = (i - 1) < 0 ? 0 : read[i - 1];
-                int right = (i + 1) >= SIZE ? (SIZE + 1) : read[i + 1];
-                write[i] = (left + right) / 2;
-                phasers[i].arrive();
-                phasers
-                tmp = read;
-                read = write;
-                write = tmp;
+        Phaser phaser = new Phaser() {
+            @Override
+            protected boolean onAdvance(int phase, int registeredParties) {
+                System.out.println("phase : " + phase + ", registeredParties : " + registeredParties);
+                return phase >= 1;
             }
-        });*/
-        long end = System.currentTimeMillis();
-        executor.shutdown();
-        System.out.println("Time(Parallel) = " + (end - start));
-        //System.out.println("Still waiting for threads : " + countDownLatch.getCount());
+        };
+        for (int i = 0 ; i < 10 ; i++) {
+            executorService.submit(new SomeThread(phaser));
+        }
+        System.out.println("terminated : " + phaser.isTerminated() + ", phase : " + phaser.getPhase() + ", registered : " + phaser.getRegisteredParties() + ", arrived : " + phaser.getArrivedParties() + ", unarrived : " + phaser.getUnarrivedParties());
+        int phase = phaser.awaitAdvance(0);
+        System.out.println("terminated : " + phaser.isTerminated() + ", phase : " + phase + ", registered : " + phaser.getRegisteredParties() + ", arrived : " + phaser.getArrivedParties() + ", unarrived : " + phaser.getUnarrivedParties());
+
+        for (int i = 0 ; i < 10 ; i++) {
+            executorService.submit(new SomeThread(phaser));
+        }
+        System.out.println("terminated : " + phaser.isTerminated() + ", phase : " + phaser.getPhase() + ", registered : " + phaser.getRegisteredParties() + ", arrived : " + phaser.getArrivedParties() + ", unarrived : " + phaser.getUnarrivedParties());
+        phase = phaser.awaitAdvance(1);
+        System.out.println("terminated : " + phaser.isTerminated() + ", phase : " + phase + ", registered : " + phaser.getRegisteredParties() + ", arrived : " + phaser.getArrivedParties() + ", unarrived : " + phaser.getUnarrivedParties());
+
+        //phase = phaser.awaitAdvance(1);
+        //System.out.println("terminated : " + phaser.isTerminated() + ", phase : " + phase + ", registered : " + phaser.getRegisteredParties() + ", arrived : " + phaser.getArrivedParties() + ", unarrived : " + phaser.getUnarrivedParties());
+        executorService.shutdown();
+    }
+}
+
+class SomeThread implements Runnable {
+
+    private Phaser phaser;
+    private static final Random RANDOM = new Random();
+
+    SomeThread(Phaser phaser) {
+
+        this.phaser = phaser;
     }
 
-    private static class NeighbourSum implements Runnable {
+    @Override
+    public void run() {
+        System.out.println(Thread.currentThread().getId() + " started...");
+        execute();
+        //execute();
+    }
 
-        private int left;
-        private int right;
-        private int[] read;
-        private int[] write;
-        private CountDownLatch countDownLatch;
-
-        public NeighbourSum(int left, int right, int[] read, int[] write, CountDownLatch countDownLatch) {
-            this.left = left;
-            this.right = right;
-            this.read = read;
-            this.write = write;
-            this.countDownLatch = countDownLatch;
+    private void execute() {
+        phaser.register();
+        try {
+            Thread.sleep(5000 - RANDOM.nextInt(2500));
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
-
-        @Override
-        public void run() {
-            for (int i = left; i < right; i++) {
-                int left = (i - 1) < 0 ? 0 : read[i - 1];
-                int right = (i + 1) >= SIZE ? (SIZE + 1) : read[i + 1];
-                write[i] = (left + right) / 2;
-            }
-            try {
-                countDownLatch.countDown();
-                countDownLatch.await();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
+        int arriveId = phaser.arriveAndDeregister();
+        System.out.println(Thread.currentThread().getId() + " done. Arrived at " + arriveId + ", terminated : " + phaser.isTerminated() + ", unarrived : " + phaser.getUnarrivedParties());
     }
 }
