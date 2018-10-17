@@ -1,6 +1,6 @@
 package concurrent;
 
-import static concurrent.ThreadUsage.threadContextPrint;
+import static concurrent.Utils.threadContextPrint;
 import static java.lang.Thread.sleep;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
