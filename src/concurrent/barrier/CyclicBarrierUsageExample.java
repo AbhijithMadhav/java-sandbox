@@ -1,6 +1,5 @@
 package concurrent.barrier;
 
-import java.time.LocalDateTime;
 import java.util.Random;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CyclicBarrier;
@@ -9,6 +8,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import static concurrent.Utils.threadContextPrint;
 import static java.lang.String.format;
 import static java.lang.Thread.sleep;
 import static java.util.concurrent.TimeUnit.SECONDS;
@@ -88,9 +88,5 @@ public class CyclicBarrierUsageExample {
             }
             threadContextPrint("Done");
         }
-    }
-
-    private static void threadContextPrint(String msg){
-        System.out.println(format("%s : %s : %s", LocalDateTime.now(), Thread.currentThread().getName(), msg));
     }
 }
